@@ -77,7 +77,25 @@ router.post("/:id/comment", (req, res) => {
   } else {
     req.body.rant = false;
   }
-  res.send("GET /places/:id/comment stub");
+  db.Place.findById(req.params.id)
+    .then(place => {
+      db.Comment.create(req.body)
+        .then(comment => {
+          place.comments.push(comment.id)
+          place.save()
+            .then(() => {
+              res.redirect(`/places/${req.params.id}`)
+            })
+        })
+        .catch(err => {
+          console.log("first catch")
+          res.render('error404')
+        })
+    })
+    .catch(err => {
+      console.log("second catch")
+      res.render('error404')
+    })
 });
 
 router.post("/", (req, res) => {
